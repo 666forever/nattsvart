@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>nattsvart</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Code:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== Base ===== */
+    :root {
+      --bg: #000;
+      --panel-bg: #000;
+      --panel-border: #202020;
+      --text: #fff;
+      --muted: #999;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: "Google Sans Code", system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+      animation: fadeIn 1.2s ease-out both;
+    }
+
+    /* ===== Noise & Vignette ===== */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("https://www.transparenttextures.com/patterns/noise.png");
+      opacity: 0.05;
+      z-index: -1;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8));
+      z-index: -2;
+    }
+
+    /* ===== Header ===== */
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+      animation: fadeUp 1.2s ease-out 0.1s both;
+    }
+
+    header img {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 8px rgba(255,255,255,0.05));
+    }
+
+    header h1 {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 3rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    header p {
+      color: #ccc;
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    /* ===== Layout ===== */
+    main {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      max-width: 500px;
+      width: 100%;
+      align-items: stretch;
+    }
+
+    @media (min-width: 700px) {
+      main {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* ===== Panels ===== */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 2px;
+      padding: 20px;
+      position: relative;
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: panelIn 1s ease-out forwards;
+      height: 100%;
+    }
+
+    .panel:nth-child(1) { animation-delay: 0.4s; }
+    .panel:nth-child(2) { animation-delay: 0.6s; }
+
+    .panel:hover {
+      transform: scale(1.03);
+    }
+
+    .panel h2 {
+      font-family: "Lora", serif;
+      font-size: 1.4rem;
+      text-transform: capitalize;
+      margin-bottom: 5px;
+    }
+
+    .panel p {
+      font-family: "Google Sans Code", sans-serif;
+      color: #bbb;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+
+    /* ===== Panel Footer ===== */
+    .panel-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      color: #888;
+      font-size: 0.75rem;
+    }
+
+    /* ===== Button ===== */
+    .panel button {
+      background-color: #000;
+      border: 1px solid #101010;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 2px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: "Google Sans Code", sans-serif;
+    }
+
+    .panel button:hover {
+      background-color: #0a0a0a;
+      border-color: #303030;
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      margin-top: 50px;
+      text-align: center;
+      font-size: 0.7rem;
+      color: #555;
+      font-family: "Google Sans Code", sans-serif;
+    }
+
+    footer a {
+      color: #888;
+      text-decoration: none;
+      margin: 0 6px;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover {
+      color: #ccc;
+    }
+
+    /* ===== Animations ===== */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(25px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://666forever.github.io/discord/assets/homecat.svg" alt="nattsvart logo" />
+    <h1>nattsvart</h1>
+    <p>ダークテーマ are you okay?</p>
+  </header>
+
+  <main>
+    <a href="#petite-bruises" class="panel">
+      <div>
+        <h2>petite bruises</h2>
+        <p>soft on the eyes, a subtle touch purple. inspired by someone i know 🌃</p>
+      </div>
+      <div class="panel-footer">
+        <button>open</button>
+      </div>
+    </a>
+
+    <a href="#sweet-rot" class="panel">
+      <div>
+        <h2>sweet rot</h2>
+        <p>another reverb from the echo chamber — WIP.</p>
+      </div>
+      <div class="panel-footer">
+        <button>wip</button>
+      </div>
+    </a>
+  </main>
+
+  <footer>
+    <a href="https://666forever.github.io" target="_blank">666forever</a> ·
+    <a href="https://discord.com" target="_blank">discord</a>
+  </footer>
+</body>
+</html>
