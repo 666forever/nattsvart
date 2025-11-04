@@ -30,20 +30,10 @@ body {
     --border-hover: var(--no-border);
     --border-hover-transition: 0;
 
-    --animations: on;
-    --background-image: off;
-    --background-image-url: url('');
     --list-item-transition: 0.2s ease;
 
     --top-bar-height: 20px;
-    --top-bar-button-position: titlebar;
-    --top-bar-title-position: off;
 
-    --transparency-tweaks: off;
-    --remove-bg-layer: off;
-    --panel-blur: off;
-    --blur-amount: 0;
-    --bg-floating: var(--bg-3);
 }
 /*
         🧃 colours ::
@@ -54,13 +44,13 @@ body {
     /* text */
     --text-0: var(--bg-4); /* text on colored elements */
     --text-1: hsl(220, 45%, 95%); /* other normally white text */
-    --text-2: hsl(245, 50%, 91.37%);; /* headings and important text */
+    --text-2: hsl(245, 50%, 91.37%); /* headings and important text */
     --text-3: hsl(270, 2.99%, 73.73%); /* normal text */
     --text-4: hsl(220deg 3.15% 62.42%); /* icon buttons and channels */
     --text-5: hsl(220deg 1.45% 26.84%); /* muted channels/chats and timestamps */
 
     /* background */
-    --bg-0: rgb(23 22 28); /* mainly the darkest element */
+    --bg-0: rgb(23, 22, 28); /* mainly the darkest element */
     --bg-1: hsl(220, 5%, 20%); /* dark buttons when clicked */
     --bg-2: hsl(220, 5%, 16%); /* dark buttons */
     --bg-3: rgb(12, 12, 14); /* main background color */
