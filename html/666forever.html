@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Are You There?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: 'IBM Plex Mono', monospace;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(to right,
+        rgba(0,0,0,0.8) 0%,
+        transparent 25%,
+        transparent 75%,
+        rgba(0,0,0,0.8) 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    canvas#particles {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .screen-overlay {
+      position: fixed;
+      inset: 0;
+      background:
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 1px, transparent 1px, transparent 3px);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* === SCALING WRAPPER === */
+    .scene {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      transform-origin: center center;
+      width: 1000px;   /* base layout width */
+      height: 700px;   /* base layout height */
+      z-index: 20;
+    }
+
+    /* Auto-scale the entire scene on smaller screens */
+    @media (max-width: 1000px) {
+      .scene {
+        transform: translate(-50%, -50%) scale(calc(100vw / 1000));
+      }
+    }
+
+    @media (max-height: 700px) {
+      .scene {
+        transform: translate(-50%, -50%) scale(calc(100vh / 700));
+      }
+    }
+
+    .container {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      font-family: 'Jersey 10', sans-serif;
+      opacity: 0.9;
+      z-index: 5;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 0; }
+      5% { opacity: 1; }
+      8% { opacity: 0; }
+      12% { opacity: 1; }
+      15% { opacity: 0; }
+      20% { opacity: 1; }
+      100% { opacity: 1; }
+    }
+    .flicker-in { animation: flicker 1s ease-out forwards; }
+
+    .footer-link {
+      position: absolute;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1rem;
+      color: #fff;
+      text-decoration: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 100;
+    }
+    .footer-link.show {
+      animation: fadeIn 1s ease-out forwards;
+      pointer-events: auto;
+    }
+    .footer-link:hover { opacity: 0.7; }
+
+    .center-buttons {
+      position: absolute;
+      top: 54%;
+      left: 64%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 11;
+    }
+
+    .center-button {
+      font-size: 1rem;
+      color: #fff;
+      text-decoration: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .center-button:hover { opacity: 0.7; }
+    .center-button.show { animation: fadeIn 1s ease-out forwards; }
+
+    .center-gif {
+      position: absolute;
+      top: 47%;
+      left: 44%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: auto;
+      opacity: 0;
+      z-index: 1;
+      transition: opacity 0.2s;
+    }
+    .center-gif.show { animation: fadeIn 1s ease-out forwards; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeOut { to { opacity: 0; } }
+    .fade-out { animation: fadeOut 1.47s ease-out forwards; }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <div class="screen-overlay"></div>
+
+  <!-- The fixed, scalable scene -->
+  <div class="scene">
+    <div id="header" style="position: absolute; top: 35.5%; left: 40%; transform: translate(-50%, -50%); font-size: 3rem; font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: #fff; opacity: 0;">obsessed</div>
+
+    <div id="secondaryDisplay" style="position: absolute; top: 39%; left: 35.5%; transform: translateX(-50%); font-size: 0.9rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 400; color: #fff; max-width: 400px; text-align: center;"></div>
+
+    <a id="footerLink" href="https://theunsentproject.com" target="_blank" class="footer-link">unsent</a>
+
+    <div class="center-buttons">
+      <a id="centerButtonGithub" href="https://github.com/666forever" target="_blank" class="center-button">github</a>
+      <a id="centerButtonSpotify" href="https://sptfy.bio/sevenpm" target="_blank" class="center-button">spotify</a>
+    </div>
+
+    <img id="centerGif" src="https://i.imgur.com/kUjzeQS.gif" alt="" class="center-gif">
+
+    <div class="container">
+      <div id="textDisplay"></div>
+    </div>
+  </div>
+
+  <script>
+    const textDisplay = document.getElementById('textDisplay');
+    const phrases = [
+      'are you there?',
+      'are we<br><span style="margin-left: 60px;">connected?</span>',
+      'good.'
+    ];
+    const pauseAfterPhrase = 800;
+    const fadeOutDuration = 1470;
+
+    function getRandomDelay() {
+      const patterns = [
+        Math.random() * 30 + 20,
+        Math.random() * 50 + 40,
+        Math.random() * 80 + 60,
+        Math.random() * 150 + 100,
+      ];
+      return patterns[Math.floor(Math.random() * patterns.length)];
+    }
+
+    async function typeSecondaryText(text) {
+      return new Promise(resolve => {
+        const secondaryDisplay = document.getElementById('secondaryDisplay');
+        secondaryDisplay.innerHTML = '';
+        let charIndex = 0;
+        const typeChar = () => {
+          if (charIndex < text.length) {
+            secondaryDisplay.innerHTML = text.substring(0, charIndex + 1);
+            charIndex++;
+            setTimeout(typeChar, getRandomDelay() * 0.3);
+          } else {
+            secondaryDisplay.innerHTML = text;
+            resolve();
+          }
+        };
+        typeChar();
+      });
+    }
+
+    async function typeText(text) {
+      return new Promise(resolve => {
+        textDisplay.innerHTML = '';
+        let charIndex = 0;
+        const typeChar = () => {
+          if (charIndex < text.length) {
+            const currentChar = text[charIndex];
+            if (currentChar === '<') {
+              const endIndex = text.indexOf('>', charIndex);
+              const partial = text.substring(0, endIndex + 1);
+              textDisplay.innerHTML = partial;
+              charIndex = endIndex + 1;
+              setTimeout(typeChar, 500);
+            } else {
+              textDisplay.innerHTML = text.substring(0, charIndex + 1);
+              charIndex++;
+              setTimeout(typeChar, getRandomDelay());
+            }
+          } else {
+            textDisplay.innerHTML = text;
+            setTimeout(resolve, 500);
+          }
+        };
+        typeChar();
+      });
+    }
+
+    async function fadeOutText() {
+      return new Promise(resolve => {
+        const rect = textDisplay.getBoundingClientRect();
+        const textElement = document.createElement('div');
+        textElement.innerHTML = textDisplay.innerHTML;
+        textElement.className = 'fade-out';
+        textElement.style.position = 'fixed';
+        textElement.style.top = rect.top + 'px';
+        textElement.style.left = rect.left + 'px';
+        textElement.style.width = rect.width + 'px';
+        textElement.style.fontSize = '2.5rem';
+        textElement.style.fontFamily = "'Jersey 10', sans-serif";
+        textElement.style.fontWeight = '700';
+        textElement.style.color = 'rgba(255, 255, 255, 0.9)';
+        textElement.style.textAlign = 'center';
+        document.body.appendChild(textElement);
+        textDisplay.innerHTML = '';
+        setTimeout(() => { textElement.remove(); resolve(); }, fadeOutDuration);
+      });
+    }
+
+    async function runSequence() {
+      for (const phrase of phrases) {
+        await typeText(phrase);
+        await new Promise(resolve => setTimeout(resolve, pauseAfterPhrase));
+        await fadeOutText();
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      const header = document.getElementById('header');
+      header.classList.add('flicker-in');
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      await typeSecondaryText('すべてはうまくいく');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      document.getElementById('footerLink').classList.add('show');
+      document.getElementById('centerButtonGithub').classList.add('show');
+      document.getElementById('centerButtonSpotify').classList.add('show');
+      document.getElementById('centerGif').classList.add('show');
+    }
+
+    runSequence();
+
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const numParticles = 40;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.5,
+        dx: (Math.random() - 0.5) * 0.3,
+        dy: (Math.random() - 0.5) * 0.3
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(255,255,255,0.15)";
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
